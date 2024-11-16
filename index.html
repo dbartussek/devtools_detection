@@ -22,7 +22,7 @@ What gave your devtools away?
 
 
 
-<h4>The stack method (Chrome)</h4>
+<h4>The stack method (<a href="https://github.com/berstend/puppeteer-extra/issues/788#issuecomment-2232890685">Chrome</a>)</h4>
 <pre><code id="classic" class="check">const e = new Error();
 Object.defineProperty(e, 'stack', {
     get() {
@@ -114,47 +114,32 @@ messageTriggered.then(() => {
 </script>
 
 
-<!--
-<h4>The universal Error method</h4>
-<pre><code id="universal" class="check">console.log(Object.defineProperties(new Error, {
-    message: {
-        get() {
-            report()
-        },
-    },
-    toString: {
-        value() {
-            if ((new Error).stack.includes('toString@')) {
-                report()
-            }
-        },
-    },
-}));
+<h4>The debug method (Chrome/Firefox)</h4>
+<pre><code id="debug" class="check">setInterval(() => {
+    const date = new Date().getTime();
+    (() => {debugger;})();
+    if (new Date().getTime() - date > 100) {
+      debugTrigger();
+    }
+}, 100);
 </code></pre>
 <script>
 
-let magicTrigger;
-const magicTriggered = new Promise(res => { magicTrigger = res; });
+let debugTrigger;
+const debugTriggered = new Promise(res => { debugTrigger = res; });
 
-console.log(Object.defineProperties(new Error, {
-    message: {
-        get() {
-            magicTrigger()
-        },
-    },
-    toString: {
-        value() {
-            if ((new Error).stack.includes('toString@')) {
-                magicTrigger()
-            }
-        },
-    },
-}));
+setInterval(() => {
+    const date = new Date().getTime();
+    (() => {debugger;})();
+    if (new Date().getTime() - date > 100) {
+      debugTrigger();
+    }
+}, 100);
 
-magicTriggered.then(() => {
-    document.getElementById('universal').classList.add('triggered');
+
+debugTriggered.then(() => {
+    document.getElementById('debug').classList.add('triggered');
 });
 </script>
--->
 
 </html>
