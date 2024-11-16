@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Devtools Detection</title>
+</head>
+
+<body>
+<style>
+.check {
+    color: green;
+}
+.triggered {
+    color: red !important;
+}
+</style>
+
+<h3>
+What gave your devtools away?
+</h3>
+
+
+
+<h4>The stack method (Chrome)</h4>
+<pre><code id="classic" class="check">const e = new Error();
+Object.defineProperty(e, 'stack', {
+    get() {
+        report();
+    }
+});
+console.log(e);
+</code></pre>
+<script>
+let classicTrigger;
+const classicTriggered = new Promise(res => { classicTrigger = res; });
+
+const e = new Error();
+Object.defineProperty(e, 'stack', {
+    get() {
+        classicTrigger();
+    }
+});
+console.log(e);
+
+classicTriggered.then(() => {
+    document.getElementById('classic').classList.add('triggered');
+});
+</script>
+
+
+
+<h4>The size method (Chrome/Firefox, devtools are not undocked (<a href="https://www.malwarebytes.com/blog/news/2014/11/mindspark-toolbars">Also detects if your browser has 2000s levels of toolbars!</a>))</h4>
+<pre><code id="size" class="check">function checkSize() {
+    const pixelRatio = window.devicePixelRatio || 1;
+    if (
+        (window.outerWidth  - window.innerWidth)  * pixelRatio > 200 ||
+        (window.outerHeight - window.innerHeight) * pixelRatio > 300
+    ) {
+        report();
+    }
+}
+</code></pre>
+<script>
+let sizeTrigger;
+const sizeTriggered = new Promise(res => { sizeTrigger = res; });
+
+function checkSize() {
+    const pixelRatio = window.devicePixelRatio || 1;
+    if (
+        (window.outerWidth  - window.innerWidth)  * pixelRatio > 200 ||
+        (window.outerHeight - window.innerHeight) * pixelRatio > 300
+    ) {
+        sizeTrigger();
+    }
+}
+window.addEventListener('resize', () => {
+    setTimeout(() => {
+        checkSize();
+    }, 100);
+}, true);
+checkSize();
+
+sizeTriggered.then(() => {
+    document.getElementById('size').classList.add('triggered');
+});
+</script>
+
+
+
+<h4>The Error.message method (Chrome/Firefox)</h4>
+<pre><code id="message_only" class="check">console.log(Object.defineProperties(new Error, {
+    message: {
+        get() {
+            report()
+        },
+        toString: {},
+    },
+}));
+</code></pre>
+<script>
+
+let messageTrigger;
+const messageTriggered = new Promise(res => { messageTrigger = res; });
+
+console.log(Object.defineProperties(new Error(), {
+    message: { get() { messageTrigger() } },
+    toString: {},
+}));
+
+messageTriggered.then(() => {
+    document.getElementById('message_only').classList.add('triggered');
+});
+</script>
+
+
+<!--
+<h4>The universal Error method</h4>
+<pre><code id="universal" class="check">console.log(Object.defineProperties(new Error, {
+    message: {
+        get() {
+            report()
+        },
+    },
+    toString: {
+        value() {
+            if ((new Error).stack.includes('toString@')) {
+                report()
+            }
+        },
+    },
+}));
+</code></pre>
+<script>
+
+let magicTrigger;
+const magicTriggered = new Promise(res => { magicTrigger = res; });
+
+console.log(Object.defineProperties(new Error, {
+    message: {
+        get() {
+            magicTrigger()
+        },
+    },
+    toString: {
+        value() {
+            if ((new Error).stack.includes('toString@')) {
+                magicTrigger()
+            }
+        },
+    },
+}));
+
+magicTriggered.then(() => {
+    document.getElementById('universal').classList.add('triggered');
+});
+</script>
+-->
+
+</html>
