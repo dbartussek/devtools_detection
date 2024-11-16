@@ -26,7 +26,7 @@ What gave your devtools away?
 <pre><code id="classic" class="check">const e = new Error();
 Object.defineProperty(e, 'stack', {
     get() {
-        report();
+        REPORT();
     }
 });
 console.log(e);
@@ -57,7 +57,7 @@ classicTriggered.then(() => {
         (window.outerWidth  - window.innerWidth)  * pixelRatio > 200 ||
         (window.outerHeight - window.innerHeight) * pixelRatio > 300
     ) {
-        report();
+        REPORT();
     }
 }
 </code></pre>
@@ -92,7 +92,7 @@ sizeTriggered.then(() => {
 <pre><code id="message_only" class="check">console.log(Object.defineProperties(new Error, {
     message: {
         get() {
-            report()
+            REPORT()
         },
         toString: {},
     },
@@ -119,7 +119,7 @@ messageTriggered.then(() => {
     const date = new Date().getTime();
     (() => {debugger;})();
     if (new Date().getTime() - date > 100) {
-        debugTrigger();
+        REPORT();
     }
 }, 100);
 </code></pre>
